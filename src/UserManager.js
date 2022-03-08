@@ -245,8 +245,8 @@ export class UserManager extends OidcClient {
             });
         });
     }
-    
-    _signinSilentIframe(args = {}) {
+
+    async _signinSilentIframe(args = {}) {
         let url = args.redirect_uri || this.settings.silent_redirect_uri || this.settings.redirect_uri;
         if (!url) {
             Log.error("UserManager.signinSilent: No silent_redirect_uri configured");
@@ -255,6 +255,9 @@ export class UserManager extends OidcClient {
 
         args.redirect_uri = url;
         args.prompt = args.prompt || "none";
+
+        // Persist current User-Scope
+        args.scope = (await this._loadUser()).scope;
 
         return this._signin(args, this._iframeNavigator, {
             startUrl: url,
